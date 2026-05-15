@@ -1,5 +1,6 @@
 import socket
 import pyChainedProxy as socks
+from .Downloader import downloadPapers
 
 def proxy(pchain):
 

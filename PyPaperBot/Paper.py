@@ -6,9 +6,8 @@ Created on Mon Jun  8 21:43:30 2020
 """
 import bibtexparser
 import re
-import pandas as pd
-import urllib.parse
-
+import csv
+import os
 
 class Paper:
 
@@ -27,90 +26,83 @@ class Paper:
         self.DOI = None
 
         self.downloaded = False
-        self.downloadedFrom = 0  # 1-SciHub 2-scholar
-        
-        self.use_doi_as_filename = False # if True, the filename will be the DOI
+        self.downloadedFrom = 0 #1-SciHub 2-scholar
+
+
 
     def getFileName(self):
-            try:
-                if self.use_doi_as_filename:
-                    return urllib.parse.quote(self.DOI, safe='') + ".pdf"
-                else:
-                    return re.sub(r'[^\w\-_. ]', '_', self.title) + ".pdf"
-            except:
-                return "none.pdf"
+        try:
+            return re.sub('[^\w\-_\. ]', '_', self.title)+".pdf"
+        except:
+            return "none.pdf"
 
-    def setBibtex(self, bibtex):
-        pattern = r'(month\s*=\s*[\{\"]?)([A-Za-z]{3})[A-Za-z]*([\}\"]?)'
-        bibtex = re.sub(pattern, r'\1\2\3', bibtex, flags=re.IGNORECASE)
-        parser = bibtexparser.bparser.BibTexParser(common_strings=True)
-        x = bibtexparser.loads(bibtex, parser=parser)
+    def setBibtex(self,bibtex):
+        x=bibtexparser.loads(bibtex, parser=None)
+        x=x.entries
 
         self.bibtex = bibtex
 
         try:
             if "year" in x[0]:
-                self.year = x[0]["year"]
+                self.year=x[0]["year"]
             if 'author' in x[0]:
                 self.authors = x[0]["author"]
-            self.jurnal = x[0]["journal"].replace("\\", "") if "journal" in x[0] else None
-            if self.jurnal is None:
-                self.jurnal = x[0]["publisher"].replace("\\", "") if "publisher" in x[0] else None
+            self.jurnal=x[0]["journal"].replace("\\","") if "journal" in x[0] else None
+            if self.jurnal==None:
+                 self.jurnal=x[0]["publisher"].replace("\\","") if "publisher" in x[0] else None
+
         except:
             pass
 
+
     def canBeDownloaded(self):
-        return self.DOI is not None or self.scholar_link is not None
+        if self.DOI!=None or self.scholar_link!=None:
+            return True
+        return False
+
 
     def generateReport(papers, path):
-        # Define the column names
-        columns = ["Name", "Scholar Link", "DOI", "Bibtex", "PDF Name",
-                   "Year", "Scholar page", "Journal", "Downloaded",
-                   "Downloaded from", "Authors"]
+        with open(path, mode="w", encoding='utf-8', newline='', buffering=1) as w_file:
+            content = ["Name", "Scholar Link", "DOI", "Bibtex",
+                       "PDF Name", "Year", "Scholar page", "Journal",
+                       "Downloaded", "Downloaded from", "Authors"]
+            file_writer = csv.DictWriter(w_file, delimiter = ",", lineterminator=os.linesep, fieldnames=content)
+            file_writer.writeheader()
 
-        # Prepare data to populate the DataFrame
-        data = []
-        for p in papers:
-            pdf_name = p.getFileName() if p.downloaded else ""
-            bibtex_found = p.bibtex is not None
+            for p in papers:
+                pdf_name = p.getFileName() if p.downloaded==True else ""
+                bibtex_found = True if p.bibtex!=None else False
 
-            # Determine download source
-            dwn_from = ""
-            if p.downloadedFrom == 1:
-                dwn_from = "SciDB"
-            elif p.downloadedFrom == 2:
-                dwn_from = "SciHub"
-            elif p.downloadedFrom == 3:
-                dwn_from = "Scholar"
+                dwn_from = ""
+                if p.downloadedFrom == 1:
+                    dwn_from = "SciHub"
+                if p.downloadedFrom == 2:
+                    dwn_from = "Scholar"
 
-            # Append row data as a dictionary
-            data.append({
-                "Name": p.title,
-                "Scholar Link": p.scholar_link,
-                "DOI": p.DOI,
-                "Bibtex": bibtex_found,
-                "PDF Name": pdf_name,
-                "Year": p.year,
-                "Scholar page": p.scholar_page,
-                "Journal": p.jurnal,
-                "Downloaded": p.downloaded,
-                "Downloaded from": dwn_from,
-                "Authors": p.authors
-            })
+                file_writer.writerow({
+                        "Name" : p.title,
+                        "Scholar Link" : p.scholar_link,
+                        "DOI" : p.DOI,
+                        "Bibtex" : bibtex_found,
+                        "PDF Name" : pdf_name,
+                        "Year" : p.year,
+                        "Scholar page" : p.scholar_page,
+                        "Journal" : p.jurnal,
+                        "Downloaded" : p.downloaded,
+                        "Downloaded from" : dwn_from,
+                        "Authors" : p.authors})
 
-        # Create a DataFrame and write to CSV
-        df = pd.DataFrame(data, columns=columns)
-        df.to_csv(path, index=False, encoding='utf-8')
 
     def generateBibtex(papers, path):
         content = ""
         for p in papers:
-            if p.bibtex is not None:
-                content += p.bibtex + "\n"
+            if p.bibtex!=None:
+                content += p.bibtex+"\n"
 
-        relace_list = ["\ast", "*", "#"]
+
+        relace_list = ["\ast","*","#"]
         for c in relace_list:
-            content = content.replace(c, "")
+            content = content.replace(c,"")
 
         f = open(path, "w", encoding="latin-1", errors="ignore")
         f.write(str(content))

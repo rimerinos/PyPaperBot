@@ -1,14 +1,10 @@
 [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.me/ferru97)
 
-# NEWS: PyPaperBot development is back on track!
-### Join the [Telegram](https://t.me/pypaperbotdatawizards) channel to stay updated, report bugs, or request custom data mining scripts.
----
-
 # PyPaperBot
 
-PyPaperBot is a Python tool for **downloading scientific papers and bibtex** using Google Scholar, Crossref, SciHub, and SciDB.
+PyPaperBot is a Python tool for **downloading scientific papers** using Google Scholar, Crossref, and SciHub.
 The tool tries to download papers from different sources such as PDF provided by Scholar, Scholar related links, and Scihub.
-PyPaperbot is also able to download the **bibtex** of each paper.
+PyPaerbot is also able to download the **bibtex** of each paper.
 
 ## Features
 
@@ -27,8 +23,6 @@ Use `pip` to install from pypi:
 ```bash
 pip install PyPaperBot
 ```
-
-If on windows you get an error saying *error: Microsoft Visual C++ 14.0 is required..* try to install [Microsoft C++ Build Tools](https://visualstudio.microsoft.com/it/visual-cpp-build-tools/) or [Visual Studio](https://visualstudio.microsoft.com/it/downloads/)
 
 ### For Termux users
 
@@ -52,28 +46,22 @@ pip install PyPaperbot
 
 PyPaperBot arguments:
 
-| Arguments                   | Description                                                                                                                                                                           | Type   |
-|-----------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------|
-| \-\-query                   | Query to make on Google Scholar or Google Scholar page link                                                                                                                           | string |
-| \-\-skip-words              | List of comma separated words i.e. "word1,word2 word3,word4". Articles containing any of this word in the title or google scholar summary will be ignored                             | string |
-| \-\-cites                   | Paper ID (from scholar address bar when you search cites) if you want get only citations of that paper                                                                                | string                              | string |
-| \-\-doi                     | DOI of the paper to download (this option uses only SciHub to download)                                                                                                               | string |
-| \-\-doi-file                | File .txt containing the list of paper's DOIs to download                                                                                                                             | string |
-| \-\-scholar-pages           | Number or range of Google Scholar pages to inspect. Each page has a maximum of 10 papers                                                                                              | string |
-| \-\-dwn-dir                 | Directory path in which to save the result                                                                                                                                            | string |
-| \-\-min-year                | Minimal publication year of the paper to download                                                                                                                                     | int    |
-| \-\-max-dwn-year            | Maximum number of papers to download sorted by year                                                                                                                                   | int    |
-| \-\-max-dwn-cites           | Maximum number of papers to download sorted by number of citations                                                                                                                    | int    |
-| \-\-journal-filter          | CSV file path of the journal filter (More info on github)                                                                                                                             | string |
-| \-\-restrict                | 0:Download only Bibtex - 1:Download only papers PDF                                                                                                                                   | int    |
-| \-\-scihub-mirror           | Mirror for downloading papers from sci-hub. If not set, it is selected automatically                                                                                                  | string |
-| \-\-annas-archive-mirror    | Mirror for downloading papers from Annas Archive (SciDB). If not set, https://annas-archive.se is used                                                                                | string |
-| \-\-scholar-results         | Number of scholar results to bedownloaded when \-\-scholar-pages=1                                                                                                                    | int    |
-| \-\-proxy                   | Proxies to be used. Please specify the protocol to be used.                                                                                                                           | string |
-| \-\-single-proxy            | Use a single proxy. Recommended if using --proxy gives errors.                                                                                                                        | string |
-| \-\-selenium-chrome-version | First three digits of the chrome version installed on your machine. If provided, selenium will be used for scholar search. It helps avoid bot detection but chrome must be installed. | int    |
-| \-\-use-doi-as-filename     | If provided, files are saved using the unique DOI as the filename rather than the default paper title                                                                                 | bool    |
-| \-h                         | Shows the help                                                                                                                                                                        | --     |
+| Arguments          | Description                                                                              | Type   |
+| ------------------ | ---------------------------------------------------------------------------------------- | ------ |
+| \-\-query          | Query to make on Google Scholar or Google Scholar page link                              | string |
+| \-\-doi            | DOI of the paper to download (this option uses only SciHub to download)                  | string |
+| \-\-doi-file       | File .txt containing the list of paper's DOIs to download                                | string |
+| \-\-scholar-pages  | Number or range of Google Scholar pages to inspect. Each page has a maximum of 10 papers | string |
+| \-\-dwn-dir        | Directory path in which to save the result                                               | string |
+| \-\-min-year       | Minimal publication year of the paper to download                                        | int    |
+| \-\-max-dwn-year   | Maximum number of papers to download sorted by year                                      | int    |
+| \-\-max-dwn-cites  | Maximum number of papers to download sorted by number of citations                       | int    |
+| \-\-journal-filter | CSV file path of the journal filter (More info on github)                                | string |
+| \-\-restrict       | 0:Download only Bibtex - 1:Down load only papers PDF                                     | int    |
+| \-\-scihub-mirror  | Mirror for downloading papers from sci-hub. If not set, it is selected automatically     | string |
+| \-\-scholar-results| Number of scholar results to bedownloaded when \-\-scholar-pages=1                       | int    |
+| \-\-proxy          | Proxies to be used. Please specify the protocol to be used.                              | string |
+| \-h                | Shows the help                                                                           | --     |
 
 ### Note
 
@@ -105,16 +93,16 @@ Download a maximum of 30 papers from the first 3 pages given a query and startin
 python -m PyPaperBot --query="Machine learning" --scholar-pages=3  --min-year=2018 --dwn-dir="C:\User\example\papers" --scihub-mirror="https://sci-hub.do"
 ```
 
-Download papers from pages 4 to 7 (7th included) given a query and skip words:
+Download papers from pages 4 to 7 (7th included) given a query:
 
 ```bash
-python -m PyPaperBot --query="Machine learning" --scholar-pages=4-7 --dwn-dir="C:\User\example\papers" --skip-words="ai,decision tree,bot"
+python -m PyPaperBot --query="Machine learning" --scholar-pages=4-7 --dwn-dir="C:\User\example\papers"
 ```
 
 Download a paper given the DOI:
 
 ```bash
-python -m PyPaperBot --doi="10.0086/s41037-711-0132-1" --dwn-dir="C:\User\example\papers" -use-doi-as-filename`
+python -m PyPaperBot --doi="10.0086/s41037-711-0132-1" --dwn-dir="C:\User\example\papers"`
 ```
 
 Download papers given a file containing the DOIs:
@@ -129,19 +117,10 @@ If it doesn't work, try to use *py* instead of *python* i.e.
 py -m PyPaperBot --doi="10.0086/s41037-711-0132-1" --dwn-dir="C:\User\example\papers"`
 ```
 
-Search papers that cite another (find ID in scholar address bar when you search citations):
-
-```bash
-python -m PyPaperBot --cites=3120460092236365926
-```
-
-Using proxy
+Using a proxy
 
 ```
-python -m PyPaperBot --query=rheumatoid+arthritis --scholar-pages=1 --scholar-results=7 --dwn-dir=/download --proxy="http://1.1.1.1::8080,https://8.8.8.8::8080"
-```
-```
-python -m PyPaperBot --query=rheumatoid+arthritis --scholar-pages=1 --scholar-results=7 --dwn-dir=/download -single-proxy=http://1.1.1.1::8080
+python -m PyPaperBot --query=rheumatoid+arthritis --scholar-pages=1 --scholar-results=7 --dwn-dir=/download --proxy http://1.1.1.1::8080 https://8.8.8.8::8080
 ```
 
 In termux, you can directly use ```PyPaperBot``` followed by arguments...

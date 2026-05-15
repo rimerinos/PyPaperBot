@@ -8,11 +8,14 @@ from bs4 import BeautifulSoup
 import re
 
 
-def schoolarParser(html):
+
+def scholarParser(html):
     result = []
     soup = BeautifulSoup(html, "html.parser")
-    for element in soup.findAll("div", class_="gs_r gs_or gs_scl"):
-        if not isBook(element):
+    for element in soup.findAll(
+        "div", class_=["gs_r gs_or gs_scl", "gs_r gs_or gs_scl gs_fmar"]
+    ):  # "gs_r gs_or gs_scl gs_fmar" for only one search result
+        if isBook(element) == False:
             title = None
             link = None
             link_pdf = None
@@ -33,7 +36,9 @@ def schoolarParser(html):
                     link_pdf = a.get("href")
             for div in element.findAll("div", class_="gs_a"):
                 try:
-                    authors, source_and_year, source = div.text.replace('\u00A0', ' ').split(" - ")
+                    authors, source_and_year, source = div.text.replace(
+                        '\u00A0', ' '
+                    ).split(" - ")
                 except ValueError:
                     continue
 
@@ -50,14 +55,17 @@ def schoolarParser(html):
                     year = None
                 else:
                     year = str(year)
-            if title is not None:
-                result.append({
-                    'title': title,
-                    'link': link,
-                    'cites': cites,
-                    'link_pdf': link_pdf,
-                    'year': year,
-                    'authors': authors})
+            if title != None:
+                result.append(
+                    {
+                        'title': title,
+                        'link': link,
+                        'cites': cites,
+                        'link_pdf': link_pdf,
+                        'year': year,
+                        'authors': authors,
+                    }
+                )
     return result
 
 
@@ -78,20 +86,14 @@ def getSchiHubPDF(html):
     download_scidb = soup.find("a", text=lambda text: text and "Download" in text, href=re.compile(r"\.pdf$")) #scidb logic
     embed_scihub = soup.find("embed") #scihub logic
 
-    if iframe is not None:
+    if iframe != None:
         result = iframe.get("src")
 
-    if plugin is not None and result is None:
+    if plugin != None and result == None:
         result = plugin.get("src")
 
-    if result is not None and result[0] != "h":
+    if result != None and result[0] != "h":
         result = "https:" + result
-
-    if download_scidb is not None and result is None:
-        result = download_scidb.get("href")
-
-    if embed_scihub is not None and result is None:
-        result = embed_scihub.get("original-url")
 
     return result
 
@@ -103,7 +105,9 @@ def SciHubUrls(html):
     for ul in soup.findAll("ul"):
         for a in ul.findAll("a"):
             link = a.get("href")
-            if link.startswith("https://sci-hub.") or link.startswith("http://sci-hub."):
+            if link.startswith("https://sci-hub.") or link.startswith(
+                "http://sci-hub."
+            ):
                 result.append(link)
 
     return result

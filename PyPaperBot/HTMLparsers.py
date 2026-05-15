@@ -5,6 +5,8 @@ Created on Sun Jun  7 11:59:42 2020
 @author: Vito
 """
 from bs4 import BeautifulSoup
+import re
+
 
 
 def scholarParser(html):
@@ -23,7 +25,7 @@ def scholarParser(html):
             for h3 in element.findAll("h3", class_="gs_rt"):
                 found = False
                 for a in h3.findAll("a"):
-                    if found == False:
+                    if not found:
                         title = a.text
                         link = a.get("href")
                         found = True
@@ -79,8 +81,10 @@ def getSchiHubPDF(html):
     result = None
     soup = BeautifulSoup(html, "html.parser")
 
-    iframe = soup.find(id='pdf')
-    plugin = soup.find(id='plugin')
+    iframe = soup.find(id='pdf') #scihub logic
+    plugin = soup.find(id='plugin') #scihub logic
+    download_scidb = soup.find("a", text=lambda text: text and "Download" in text, href=re.compile(r"\.pdf$")) #scidb logic
+    embed_scihub = soup.find("embed") #scihub logic
 
     if iframe != None:
         result = iframe.get("src")

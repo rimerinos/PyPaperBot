@@ -25,11 +25,21 @@ def scholar_requests(scholar_pages, url, restrict, scholar_results=10):
         "Sorry, we can't verify that you're not a robot when JavaScript is turned off"
     )
     to_download = []
+    driver = None
     for i in scholar_pages:
         while True:
             res_url = url % (scholar_results * (i - 1))
-            html = requests.get(res_url, headers=NetInfo.HEADERS)
-            html = html.text
+            if chrome_version is not None:
+                if driver is None:
+                    print("Using Selenium driver")
+                    options = Options()
+                    options.add_argument('--headless')
+                    driver = uc.Chrome(headless=True, use_subprocess=False, version_main=chrome_version)
+                driver.get(res_url)
+                html = driver.page_source
+            else:
+                html = requests.get(res_url, headers=NetInfo.HEADERS)
+                html = html.text
 
             if javascript_error in html:
                 is_continue = waithIPchange()
@@ -70,6 +80,6 @@ def ScholarPapersInfo(
     if len(query) > 7 and (query[0:7] == "http://" or query[0:8] == "https://"):
         url = query
 
-    to_download = scholar_requests(scholar_pages, url, restrict, scholar_results)
+    to_download = scholar_requests(scholar_pages, url, restrict, chrome_version, scholar_results)
 
     return [item for sublist in to_download for item in sublist]

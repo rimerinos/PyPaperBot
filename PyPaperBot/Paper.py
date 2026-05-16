@@ -41,8 +41,10 @@ class Paper:
                 return "none.pdf"
 
     def setBibtex(self, bibtex):
-        x = bibtexparser.loads(bibtex, parser=None)
-        x = x.entries
+        pattern = r'(month\s*=\s*[\{\"]?)([A-Za-z]{3})[A-Za-z]*([\}\"]?)'
+        bibtex = re.sub(pattern, r'\1\2\3', bibtex, flags=re.IGNORECASE)
+        parser = bibtexparser.bparser.BibTexParser(common_strings=True)
+        x = bibtexparser.loads(bibtex, parser=parser)
 
         self.bibtex = bibtex
 
